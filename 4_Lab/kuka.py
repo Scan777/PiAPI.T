@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 class Kuka:
     def __init__(self, robot):
@@ -10,42 +11,54 @@ class Kuka:
                 sys.exit(-1)
         self.name = self.robot.read('$ROBNAME[]', debug=False).decode()
 
-    def lin_continuous(self, arr, log=0):
+    def lin_continuous(self, arr):
+        time.sleep(0.5)
         self.send_Frame_array(arr)
         self.robot.write("COM_LENGTH", str(arr.shape[0]-1), False)
         self.robot.write("COM_CASEVAR", "4", False)
-        #self.robot.write("COM_CASEVAR", "9", False)
+        while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
+            continue 
             
     def read_advance(self):
         self.advance = self.robot.read("$ADVANCE", False).decode()
 
     def open_grip(self):
+        time.sleep(0.5)
         self.robot.write('OUT5', 'False')
         self.robot.write('OUT6', 'True')
         self.robot.write("COM_CASEVAR", "9", False)
         print('open')
-        
-    def case(self):
-        self.robot.write("COM_CASEVAR", "0", False)
-        print('case 0')
-    
+        while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
+            continue 
+            
     def close_grip(self):
+        time.sleep(0.5)
         self.robot.write('OUT5', 'True')
         self.robot.write('OUT6', 'False')
         self.robot.write("COM_CASEVAR", "9", False)
-        print('close')    
-    
+        print('close')
+        while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
+            continue        
+
     def Go(self):
         self.robot.write("COM_READ", "1")
         print('Go')
         
     def vacuum_on(self):
+        time.sleep(0.5)
         self.robot.write('OUT7', 'True')
+        self.robot.write("COM_CASEVAR", "10", False)
         print('on')
+        while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
+            continue 
  
     def vacuum_off(self):
+        time.sleep(0.5)
         self.robot.write('OUT7', 'False')
+        self.robot.write("COM_CASEVAR", "10", False)
         print('off')
+        while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
+            continue 
         
     def read_APO(self):
         self.APO = self.robot.read("$APO", False).decode()
