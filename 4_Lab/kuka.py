@@ -115,9 +115,24 @@ class Kuka:
         self.z_cv = float(cartessian[6])
         self.baseposition = np.array([self.x_cv, self.y_cv, self.z_cv])
 
-    def set_base(self, arr):
-        self.send_Frame(arr, "$COM_FRAME")
+    def set_base(self, base):
+        time.sleep(0.5)
+        Base=(self.robot.read(("BASE_DATA[" + str(base)+"]"), False).decode())
+        print(Base)
+        self.robot.write("COM_FRAME", Base)
         self.robot.write("COM_CASEVAR", "8")
+        while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
+            continue 
+  
+    def set_tool(self, tool):
+        time.sleep(0.5)
+        Tool=(self.robot.read(("TOOL_DATA[" + str(tool)+"]"), False).decode())
+        print(Tool)
+        self.robot.write("COM_FRAME", Tool)
+        self.robot.write("COM_CASEVAR", "7")
+        time.sleep(0.5)
+        while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
+            continue 
             
     def read_input(self, index):
         return(self.robot.read(("$IN[" + str(index) + "]"), False).decode())
@@ -170,10 +185,6 @@ class Kuka:
     def set_APO_CPTP(self, value):
         self.robot.write("$APO.CPTP", str(value),False)
  
-    def set_base(self, arr):
-        self.send_Frame(arr, "$COM_FRAME")
-        self.robot.write("COM_CASEVAR", "8")
- 
     def set_input(self, index, bool):
         self.robot.write("COM_IDX", index, False)
         self.robot.write("COM_BOOL", bool, False)
@@ -183,13 +194,7 @@ class Kuka:
         self.robot.write("COM_IDX", index, False)
         self.robot.write("COM_BOOL", bool, False)
         self.robot.write("COM_CASEVAR", "3", False)
- 
-    def set_tool(self, arr):
-        self.send_Frame(arr, "$COM_FRAME")
-        self.robot.write("COM_CASEVAR", "8")
-        self.send_Frame(arr, "$COM_FRAME")
-        self.robot.write("COM_CASEVAR", "7")
- 
+            
     def set_tool_velocity(self, value):
         self.robot.write("COM_VALUE1", str(value), False)
         self.robot.write("COM_CASEVAR", "6", False)
