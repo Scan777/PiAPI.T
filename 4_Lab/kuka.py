@@ -1,7 +1,7 @@
 import numpy as np
 import time
 
-class Kuka:
+class Kuka:   
     def __init__(self, robot):
         self.robot = robot
         #Test connection
@@ -10,63 +10,49 @@ class Kuka:
                 import sys
                 sys.exit(-1)
         self.name = self.robot.read('$ROBNAME[]', debug=False).decode()
-
+        
     def lin_continuous(self, arr):
-        time.sleep(0.5)
+        time.sleep(0.1)
         self.send_Frame_array(arr)
         self.robot.write("COM_LENGTH", str(arr.shape[0]-1), False)
         self.robot.write("COM_CASEVAR", "4", False)
         while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
             continue 
             
-    def read_advance(self):
-        self.advance = self.robot.read("$ADVANCE", False).decode()
-
     def open_grip(self):
-        time.sleep(0.5)
+        time.sleep(0.1)
         self.robot.write('OUT5', 'False')
         self.robot.write('OUT6', 'True')
-        self.robot.write("COM_CASEVAR", "9", False)
+        self.robot.write("COM_CASEVAR", "5", False)
         print('open')
         while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
             continue 
             
     def close_grip(self):
-        time.sleep(0.5)
+        time.sleep(0.1)
         self.robot.write('OUT5', 'True')
         self.robot.write('OUT6', 'False')
-        self.robot.write("COM_CASEVAR", "9", False)
+        self.robot.write("COM_CASEVAR", "5", False)
         print('close')
         while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
             continue        
 
-    def Go(self):
-        self.robot.write("COM_READ", "1")
-        print('Go')
-        
     def vacuum_on(self):
-        time.sleep(0.5)
+        time.sleep(0.1)
         self.robot.write('OUT7', 'True')
-        self.robot.write("COM_CASEVAR", "10", False)
+        self.robot.write("COM_CASEVAR", "6", False)
         print('on')
         while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
             continue 
  
     def vacuum_off(self):
-        time.sleep(0.5)
+        time.sleep(0.1)
         self.robot.write('OUT7', 'False')
-        self.robot.write("COM_CASEVAR", "10", False)
+        self.robot.write("COM_CASEVAR", "6", False)
         print('off')
         while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
             continue 
-        
-    def read_APO(self):
-        self.APO = self.robot.read("$APO", False).decode()
-
-    def ptp(self, arr):
-        self.send_Frame(arr, "COM_FRAME")
-        self.robot.write("COM_CASEVAR", "1", False)
-        
+              
     def ptp_continuous(self, arr):
         self.send_Frame_array(arr)
         self.robot.write("COM_LENGTH", str(arr.shape[0]-1))
@@ -104,45 +90,22 @@ class Kuka:
         self.E6_cartessian = float(cartessian[24])
         self.global_position = np.array([self.x_cartessian, self.y_cartessian, self.z_cartessian, self.A_cartessian, self.B_cartessian, self.C_cartessian])
            
-    def cvbase(self):
-        #cartessian_string = self.robot.read("$POS_ACT", False).decode()
-        cartessian_string = self.robot.read("BASE_DATA[20]", False).decode()
-        cartessian_string = cartessian_string.replace(',', '')
-        cartessian_string = cartessian_string.replace('}', '')
-        cartessian = cartessian_string.split()
-        self.x_cv = float(cartessian[2])
-        self.y_cv = float(cartessian[4])
-        self.z_cv = float(cartessian[6])
-        self.baseposition = np.array([self.x_cv, self.y_cv, self.z_cv])
-
     def set_base(self, base):
-        time.sleep(0.5)
+        time.sleep(0.1)
         Base=(self.robot.read(("BASE_DATA[" + str(base)+"]"), False).decode())
-        print(Base)
         self.robot.write("COM_FRAME", Base)
-        self.robot.write("COM_CASEVAR", "8")
+        self.robot.write("COM_CASEVAR", "1")
         while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
             continue 
   
     def set_tool(self, tool):
-        time.sleep(0.5)
+        time.sleep(0.1)
         Tool=(self.robot.read(("TOOL_DATA[" + str(tool)+"]"), False).decode())
-        print(Tool)
         self.robot.write("COM_FRAME", Tool)
-        self.robot.write("COM_CASEVAR", "7")
-        time.sleep(0.5)
+        self.robot.write("COM_CASEVAR", "2")
         while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
             continue 
             
-    def read_input(self, index):
-        return(self.robot.read(("$IN[" + str(index) + "]"), False).decode())
-
-    def read_out(self, index):
-        return(self.robot.read(("$OUT[" + str(index) + "]"), False).decode())
-
-    def read_tcp_velocity(self):
-        self.velocity_cartessian = self.robot.read("$VEL_C", False).decode()
-
     def read_tool(self):
         string = self.robot.read("$TOOL", False).decode()
         string = string.replace(',', '')
@@ -178,23 +141,11 @@ class Kuka:
         for i in range(len(arr)):
             index_string = ("COM_FRAME_ARRAY[" + str(i) + "]")
             self.send_Frame(arr[i], index_string)
- 
-    def set_advance(self, value):
-        self.robot.write("$ADVANCE", str(value),False)
- 
-    def set_APO_CPTP(self, value):
-        self.robot.write("$APO.CPTP", str(value),False)
- 
-    def set_input(self, index, bool):
-        self.robot.write("COM_IDX", index, False)
-        self.robot.write("COM_BOOL", bool, False)
-        self.robot.write("COM_CASEVAR", "2", False)
- 
-    def set_output(self, index, bool):
-        self.robot.write("COM_IDX", index, False)
-        self.robot.write("COM_BOOL", bool, False)
-        self.robot.write("COM_CASEVAR", "3", False)
             
-    def set_tool_velocity(self, value):
+    def set_speed(self, value):
+        time.sleep(0.1)
+        #self.robot.write("$OV_PRO", str(value), False)
         self.robot.write("COM_VALUE1", str(value), False)
-        self.robot.write("COM_CASEVAR", "6", False)
+        self.robot.write("COM_CASEVAR", "3", False)
+        while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
+            continue 
