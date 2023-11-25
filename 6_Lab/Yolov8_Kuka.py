@@ -62,7 +62,7 @@ def Yolo(cap):
                 depth_robot=[(-55+(855-depth[i])) for i in range(count_object)]
                 labels = [
                     f"{model.model.names[class_id]} {confidence:0.2f}"
-                    for _, confidence, class_id, _
+                    for _, _, confidence, class_id, _
                     in detections
                 ]
 
