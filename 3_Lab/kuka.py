@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import socket   
 
 class Kuka:   
     def __init__(self, robot):
@@ -10,6 +11,13 @@ class Kuka:
                 import sys
                 sys.exit(-1)
         self.name = self.robot.read('$ROBNAME[]', debug=False).decode()
+   
+    def ptp(self, arr):
+        #time.sleep(0.1)
+        self.send_Frame(arr, "COM_FRAME")
+        self.robot.write("COM_CASEVAR", "7", False)
+        #while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
+        #    continue 
         
     def lin_continuous(self, arr):
         time.sleep(0.1)
@@ -24,7 +32,7 @@ class Kuka:
         self.robot.write('OUT5', 'False')
         self.robot.write('OUT6', 'True')
         self.robot.write("COM_CASEVAR", "5", False)
-        print('open')
+        #print('open')
         while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
             continue 
             
@@ -33,9 +41,23 @@ class Kuka:
         self.robot.write('OUT5', 'True')
         self.robot.write('OUT6', 'False')
         self.robot.write("COM_CASEVAR", "5", False)
-        print('close')
+        #print('close')
         while int(self.robot.read("COM_CASEVAR", False).decode())!=0:
             continue        
+         
+    def E_close_grip(Nm, sock):
+        #host = "192.168.1.160" #ESP32 IP in local network
+        #port = 80             #ESP32 Server Port    
+        #сила сжатия
+        a=str(Nm)+str(",")+str(1)
+        sock.send(a.encode('utf-8'))
+        
+    def E_open_grip(sock):
+        #host = "192.168.1.160" #ESP32 IP in local network
+        #port = 80             #ESP32 Server Port    
+        #сила сжатия
+        a=str(0)+str(",")+str(0)
+        sock.send(a.encode('utf-8'))
 
     def vacuum_on(self):
         time.sleep(0.1)
@@ -133,7 +155,7 @@ class Kuka:
         for i in range(len(arr)):
             string_arr.append(str(arr[i]))
         cartessian_string = ("{FRAME: X " + string_arr[0] + ", Y " + string_arr[1] + ", Z "+ string_arr[2] + ", A " + string_arr[3] + ", B " + string_arr[4] + ", C " + string_arr[5] + "}")
-        print(cartessian_string)
+        #print(cartessian_string)
         self.robot.write(system_variable, cartessian_string, False)
         
     def send_Frame_array(self, arr):

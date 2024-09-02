@@ -38,14 +38,14 @@ class openshowvar(object):
 
     can_connect = property(test_connection)
 
-    def read(self, var, debug=True):
+    def read(self, var, debug=False):
         if not isinstance(var, str):
             raise Exception('Var name is a string')
         else:
             self.varname = var if PY2 else var.encode(ENCODING)
         return self._read_var(debug)
 
-    def write(self, var, value, debug=True):
+    def write(self, var, value, debug=False):
         if not (isinstance(var, str) and isinstance(value, str)):
             raise Exception('Var name and its value should be string')
         self.varname = var if PY2 else var.encode(ENCODING)
