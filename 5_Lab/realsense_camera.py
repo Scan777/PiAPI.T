@@ -1,7 +1,6 @@
 import pyrealsense2 as rs
 import numpy as np
 import json
-import cv2
 
 class RealsenseCamera:
     def __init__(self):
@@ -68,7 +67,7 @@ class RealsenseCamera:
         #cv2.imshow("Colormap", depth_colormap)
         #cv2.imshow("depth img", depth_image)
 
-        return True, depth_colormap, color_image, depth
+        return True, color_image, depth
     
     def release(self):
         self.pipeline.stop()
