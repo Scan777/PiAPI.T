@@ -6,14 +6,22 @@ from operator import itemgetter
 import numpy as np
 import pyrealsense2
 from realsense_camera import *
-    
+   
+fx=604.602
+fy=604.162
+Cx=320
+Cy=240
+
+bounding_box_annotator = sv.BoundingBoxAnnotator()
+percentage_bar_annotator = sv.BoundingBoxAnnotator()
+
 class ObjectDetector:
     
     def __init__(self):
         self.x_sort = None
         self.currentClass = None
-        self.second = None
-        self.second_max = None
+        self.second = [0]
+        self.second_max = [0]
 
     def detect(self, frame, depth, model):
         result = model(frame, agnostic_nms=True, conf=0.5, verbose=False)[0]
@@ -36,7 +44,8 @@ class ObjectDetector:
                     detections=detections
                 )
                 cv2.circle(frame, (int(coord_center[i][0]),int(coord_center[i][1])), 3, (118, 103, 154), 3) 
-                cv2.line(frame, (200,0), (200, 480), (0, 255, 0), 5)
+                cv2.line(frame, (580,0), (580, 480), (0, 255, 0), 5)
+                cv2.line(frame, (100,0), (100, 480), (0, 255, 0), 5)
             self.x_sort=sorted(coord_center,key=itemgetter(0)) #Координаты [x,y] отсортированные по возрастанию x
             self.currentClass = detections.class_id[0]
             return self.getPosition()
@@ -47,7 +56,6 @@ class ObjectDetector:
         return {
             'x_sort': self.x_sort,
             'currentClass': self.currentClass,
-            'isEmpty': self.isEmpty,
             'second': self.second,
-            'second_max': self.second_max,
+            'second_max': self.second_max
         }

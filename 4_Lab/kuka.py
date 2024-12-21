@@ -158,6 +158,14 @@ class Kuka:
         #print(cartessian_string)
         self.robot.write(system_variable, cartessian_string, False)
         
+    def send_Frame_4(self, arr, system_variable=""):
+        string_arr = []
+        for i in range(len(arr)):
+            string_arr.append(str(arr[i]))
+        cartessian_string = ("{FRAME: X " + string_arr[0] + ", Y " + string_arr[1] + ", Z "+ string_arr[2] + ", A " + string_arr[3] + "}")
+        #print(cartessian_string)
+        self.robot.write(system_variable, cartessian_string, False)
+        
     def send_Frame_array(self, arr):
         #self.robot.write("COM_LENGTH", str(length)) # Send length of array
         for i in range(len(arr)):
