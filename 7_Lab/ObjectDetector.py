@@ -20,12 +20,12 @@ class Robot_mm:
         self.points=None
         
     def Kuka_base(self, kuka):
+        # Чтение текущих координат робота
         kuka.read_cartesian()
-        trajectory_arr = []
-        trajectory_arr.append(np.array([kuka.x_cartesian, kuka.y_cartesian, kuka.z_cartesian, kuka.A_cartesian, kuka.B_cartesian, kuka.C_cartesian]))
-        trajectory_arr.append(np.array([x0, y0, z0, 90.57, 0, 180]))
-        trajectory_arr = np.array(trajectory_arr)
-        kuka.lin_continuous_massiv(trajectory_arr)
+        # Построение траектории
+        first_point=[x0, y0, z0, 90.57, 0, 180]
+        trajectory=np.array([first_point])
+        kuka.lin_continuous(kuka,trajectory)
 
     def pixel_mm(self, depth, points):
         points=(int(points[0]), int (points[1]))
@@ -39,13 +39,12 @@ class Robot_mm:
 
     def Kuka_move(self, kuka, depth, points):
         X_mm, Y_mm, Z_mm=self.pixel_mm(depth, points)
-        print(X_mm, Y_mm, Z_mm)
+        # Чтение текущих координат робота
         kuka.read_cartesian()
-        trajectory_arr = []
-        trajectory_arr.append(np.array([kuka.x_cartesian, kuka.y_cartesian, kuka.z_cartesian, kuka.A_cartesian, kuka.B_cartesian, kuka.C_cartesian]))
-        trajectory_arr.append(np.array([kuka.x_cartesian-X_mm, kuka.y_cartesian+Y_mm, kuka.z_cartesian-Z_mm, kuka.A_cartesian, 0, 180]))
-        trajectory_arr = np.array(trajectory_arr)
-        kuka.lin_continuous_massiv(trajectory_arr)
+        # Построение траектории
+        first_point=[kuka.x_cartesian-X_mm, kuka.y_cartesian+Y_mm, kuka.z_cartesian-Z_mm, kuka.A_cartesian, 0, 180]
+        trajectory=np.array([first_point])
+        kuka.lin_continuous(kuka,trajectory)
         
 class ObjectDetector:
     
